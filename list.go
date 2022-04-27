@@ -108,3 +108,46 @@ func (l *List[T]) At(index int) (T, error) {
 
 	return v, nil
 }
+
+func (l *List[T]) Update(index int, newV T) error {
+	if l == nil {
+		return OutOfBoundsError{index, 0}
+	}
+	curr := l
+
+	for i := 1; i <= index; i++ {
+		if curr == nil {
+			return OutOfBoundsError{index, i}
+		}
+		curr = curr.next
+	}
+
+	curr.val = newV
+	return nil
+}
+
+func (l *List[T]) Remove(index int) (*List[T], error) {
+	var empty *List[T]
+
+	if l == nil {
+		return l, OutOfBoundsError{index, 0}
+	}
+	if l.next == nil && index == 0 {
+		return empty, nil
+	}
+
+	curr := l
+	for i := 1; i < index; i++ {
+		if curr.next == nil {
+			return l, OutOfBoundsError{index, i}
+		}
+		curr = curr.next
+	}
+
+	if curr.next == nil {
+		return l, OutOfBoundsError{index, index}
+	}
+
+	curr.next = curr.next.next
+	return l, nil
+}

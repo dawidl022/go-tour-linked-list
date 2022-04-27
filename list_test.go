@@ -95,3 +95,58 @@ func TestInsert(t *testing.T) {
 	_, err = l.Insert(10, 100)
 	assert.Error(t, OutOfBoundsError{}, err)
 }
+
+func TestUpdate(t *testing.T) {
+	var empty *List[int]
+	err := empty.Update(0, 2)
+
+	if assert.Error(t, err) {
+		assert.Equal(t, OutOfBoundsError{}, err)
+	}
+
+	l := empty.Append(3)
+	err = l.Update(0, 10)
+	assert.Equal(t, 10, l.val)
+	assert.Equal(t, nil, err)
+	assert.Equal(t, empty, l.next)
+
+	l.Append(20)
+	l.Update(1, 30)
+	assert.Equal(t, 30, l.next.val)
+	assert.Equal(t, 10, l.val)
+}
+
+func TestRemove(t *testing.T) {
+	var empty *List[int]
+	_, err := empty.Remove(0)
+
+	if assert.Error(t, err) {
+		assert.Equal(t, OutOfBoundsError{}, err)
+	}
+
+	// when there is only 1 element, nil should be returned
+
+	l := empty.Append(9)
+	l, err = l.Remove(0)
+
+	assert.Equal(t, empty, l)
+	assert.Equal(t, nil, err)
+
+	l = empty.Append(10)
+	l.Append(11)
+	l.Append(12)
+
+	res, err := l.Remove(1)
+
+	assert.Equal(t, l, res)
+	assert.Equal(t, nil, err)
+
+	v, _ := l.At(1)
+	assert.Equal(t, 12, v)
+
+	res, err = l.Remove(2)
+	if assert.Error(t, err) {
+		assert.Equal(t, OutOfBoundsError{index: 2, len: 2}, err)
+	}
+	assert.Equal(t, l, res)
+}
