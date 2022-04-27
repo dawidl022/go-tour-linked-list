@@ -1,6 +1,8 @@
-package main
+package linkedlist
 
 import "fmt"
+
+// Would the implementation be better with a head pointer?
 
 type List[T any] struct {
 	next *List[T]
@@ -18,12 +20,17 @@ func (e OutOfBoundsError) Error() string {
 	return fmt.Sprintf("Index %d out of bounds for list of length %d", e.index, e.len)
 }
 
-func (l *List[T]) Append(v T) {
+func (l *List[T]) Append(v T) *List[T] {
+	if l == nil {
+		return &List[T]{val: v}
+	}
+
 	curr := l
 	for ; curr.next != nil; curr = curr.next {
 	}
 
 	curr.next = &List[T]{val: v}
+	return l
 }
 
 func (l *List[T]) Length() int {
@@ -67,7 +74,10 @@ func (l *List[T]) Insert(index int, v T) (*List[T], error) {
 	curr := l
 
 	for i := 1; i <= index; i++ {
-		// TODO check for nil
+		if curr == nil {
+			var zero *List[T]
+			return zero, OutOfBoundsError{index, i - 1}
+		}
 		prev = curr
 		curr = curr.next
 	}
@@ -79,6 +89,11 @@ func (l *List[T]) Insert(index int, v T) (*List[T], error) {
 }
 
 func (l *List[T]) At(index int) (T, error) {
+	if l == nil {
+		var zero T
+		return zero, OutOfBoundsError{index, 0}
+	}
+
 	v := l.val
 	curr := l
 
@@ -92,16 +107,4 @@ func (l *List[T]) At(index int) (T, error) {
 	}
 
 	return v, nil
-}
-
-func main() {
-	l := &List[int]{val: 3}
-	l.Append(5)
-	l.Append(1)
-	l.Append(2)
-	fmt.Println(l)
-	l, _ = l.Insert(0, 0)
-	fmt.Println(l)
-	l.Insert(2, 10)
-	fmt.Println(l)
 }
